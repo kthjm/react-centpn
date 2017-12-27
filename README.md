@@ -11,6 +11,12 @@
 ```
 ## Usage
 ```js
+import Center from 'react-vertical-center'
+
+export default () =>
+  <Center {...{ deduct: 20 }}>
+    <div {...{ style: { height: 100 } }}></div>
+  </Center>
 ```
 ## API
 ## License
