@@ -98,15 +98,18 @@ function ref(target) {
   }
 }
 
-var Center = (function(_Component) {
-  inherits(Center, _Component)
+var VerticalCenter = (function(_Component) {
+  inherits(VerticalCenter, _Component)
 
-  function Center(props) {
-    classCallCheck(this, Center)
+  function VerticalCenter(props) {
+    classCallCheck(this, VerticalCenter)
 
     var _this = possibleConstructorReturn(
       this,
-      (Center.__proto__ || Object.getPrototypeOf(Center)).call(this, props)
+      (VerticalCenter.__proto__ || Object.getPrototypeOf(VerticalCenter)).call(
+        this,
+        props
+      )
     )
 
     _this.ref = ref.bind(_this)
@@ -114,7 +117,7 @@ var Center = (function(_Component) {
     return _this
   }
 
-  createClass(Center, [
+  createClass(VerticalCenter, [
     {
       key: 'render',
       value: function render() {
@@ -169,7 +172,7 @@ var Center = (function(_Component) {
       }
     }
   ])
-  return Center
+  return VerticalCenter
 })(Component)
 
-export default Center
+export default VerticalCenter

@@ -13,7 +13,7 @@ function ref(target) {
   }
 }
 
-export default class Center extends Component {
+export default class VerticalCenter extends Component {
   constructor(props) {
     super(props)
     this.ref = ref.bind(this)
