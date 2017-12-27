@@ -90,8 +90,8 @@ var isNum = function isNum(data) {
 var raf = function raf(callback) {
   return window.requestAnimationFrame(callback)
 }
-var caf = function caf(callback) {
-  return window.cancelAnimationFrame(callback)
+var caf = function caf(id) {
+  return window.cancelAnimationFrame(id)
 }
 var deductFromHalf = function deductFromHalf(value) {
   return 'calc(50% - ' + value + 'px)'

@@ -4,7 +4,7 @@ import React, { Component } from 'react'
 const { assign } = Object
 const isNum = data => typeof data === 'number'
 const raf = callback => window.requestAnimationFrame(callback)
-const caf = callback => window.cancelAnimationFrame(callback)
+const caf = id => window.cancelAnimationFrame(id)
 const deductFromHalf = value => `calc(50% - ${value}px)`
 
 function ref(target) {
