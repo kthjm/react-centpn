@@ -77,82 +77,91 @@ var possibleConstructorReturn = function(self, call) {
 //
 var assign = Object.assign
 
-var isNum = function isNum(data) {
-  return typeof data === 'number'
-}
 var raf = function raf(callback) {
   return window.requestAnimationFrame(callback)
 }
-var caf = function caf(id) {
-  return window.cancelAnimationFrame(id)
-}
-var deductFromHalf = function deductFromHalf(value) {
-  return 'calc(50% - ' + value + 'px)'
+var caf = function caf(requestId) {
+  return window.cancelAnimationFrame(requestId)
 }
 
-function ref(target) {
-  if (target) {
+function ref(div) {
+  if (div) {
     this.getHeight = function() {
-      return target.clientHeight
+      return div.clientHeight
     }
+  } else {
+    delete this.getHeight
   }
 }
 
-var VerticalCenter = (function(_Component) {
-  inherits(VerticalCenter, _Component)
+var Centpn = (function(_Component) {
+  inherits(Centpn, _Component)
 
-  function VerticalCenter(props) {
-    classCallCheck(this, VerticalCenter)
+  function Centpn(props) {
+    classCallCheck(this, Centpn)
 
     var _this = possibleConstructorReturn(
       this,
-      (VerticalCenter.__proto__ || Object.getPrototypeOf(VerticalCenter)).call(
-        this,
-        props
-      )
+      (Centpn.__proto__ || Object.getPrototypeOf(Centpn)).call(this, props)
     )
 
-    _this.ref = ref.bind(_this)
+    _this.throwInvalidProps(props)
     _this.state = { height: undefined }
+    _this.requestId = undefined
+    _this.ref = ref.bind(_this)
     return _this
   }
 
-  createClass(VerticalCenter, [
+  createClass(Centpn, [
     {
       key: 'render',
       value: function render() {
-        var props = assign({}, this.props, {
-          style: assign({}, this.props.style)
-        })
-
-        var style = props.style
+        return React.createElement(
+          'div',
+          _extends({ ref: this.ref }, this.processedProps())
+        )
+      }
+    },
+    {
+      key: 'processedProps',
+      value: function processedProps() {
+        var top = this.props.top
         var height = this.state.height
 
-        if (!isNum(height)) {
-          style.visibility = 'hidden'
-        } else {
-          var deduct = props.deduct || 0
-          style.position = 'relative'
-          style.top = deductFromHalf(height / 2 + deduct)
-        }
-
-        props.deduct = undefined
-
-        return React.createElement('div', _extends({ ref: this.ref }, props))
+        return assign({}, this.props, {
+          top: undefined,
+          style: assign(
+            {},
+            this.props.style,
+            typeof height !== 'number'
+              ? { visibility: 'hidden' }
+              : {
+                  position: 'relative',
+                  top: 'calc(50% + ' + (top - height / 2) + 'px)'
+                }
+          )
+        })
       }
     },
     {
       key: 'componentDidMount',
       value: function componentDidMount() {
-        var height = this.getHeight()
-        return this.rafSetState(height)
+        this.rafSetState(this.getHeight())
+      }
+    },
+    {
+      key: 'componentWillReceiveProps',
+      value: function componentWillReceiveProps(nextProps) {
+        this.throwInvalidProps(nextProps)
       }
     },
     {
       key: 'componentDidUpdate',
       value: function componentDidUpdate() {
         var height = this.getHeight()
-        return height !== this.state.height && this.rafSetState(height)
+        if (height !== this.state.height) {
+          this.rafSetState(height)
+        }
       }
     },
     {
@@ -170,9 +179,19 @@ var VerticalCenter = (function(_Component) {
       value: function componentWillUnmount() {
         caf(this.requestId)
       }
+    },
+    {
+      key: 'throwInvalidProps',
+      value: function throwInvalidProps(props) {
+        if (typeof props.top !== 'number') {
+          throw new TypeError('Centpn props.top must be "number"')
+        }
+      }
     }
   ])
-  return VerticalCenter
+  return Centpn
 })(Component)
 
-export default VerticalCenter
+Centpn.defaultProps = { top: 0 }
+
+export default Centpn

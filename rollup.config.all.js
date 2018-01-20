@@ -5,8 +5,8 @@ const commonjs = require('rollup-plugin-commonjs')
 const uglify = require('rollup-plugin-uglify')
 const { minify } = require('uglify-es')
 
-const input = `src/index.js`
-const file = mid => `dist/${mid}.js`
+const input = `./index.js`
+const file = mid => `${mid}.js`
 
 const cjs_and_es = () =>
   rollup({
@@ -30,10 +30,9 @@ const umd = () =>
     bundle.write({
       format: 'umd',
       file: file('min'),
-      name: 'ReactShut',
+      name: 'ReactCentpn',
       globals: {
-        react: 'React',
-        atra: 'Atra'
+        react: 'React'
       }
     })
   )
