@@ -75,8 +75,6 @@ var possibleConstructorReturn = function(self, call) {
 }
 
 //
-var assign = Object.assign
-
 var raf = function raf(callback) {
   return window.requestAnimationFrame(callback)
 }
@@ -84,14 +82,10 @@ var caf = function caf(requestId) {
   return window.cancelAnimationFrame(requestId)
 }
 
-function ref(div) {
-  if (div) {
-    this.getHeight = function() {
-      return div.clientHeight
-    }
-  } else {
-    delete this.getHeight
-  }
+var topProcess = function topProcess(top) {
+  return !top
+    ? ''
+    : ' + (' + (typeof top === 'number' ? String(top) + 'px' : top) + ')'
 }
 
 var Centpn = (function(_Component) {
@@ -105,10 +99,18 @@ var Centpn = (function(_Component) {
       (Centpn.__proto__ || Object.getPrototypeOf(Centpn)).call(this, props)
     )
 
-    _this.throwInvalidProps(props)
+    _this.throwProps(props)
     _this.state = { height: undefined }
     _this.requestId = undefined
-    _this.ref = ref.bind(_this)
+    _this.ref = function(div) {
+      if (div) {
+        _this.getHeight = function() {
+          return div.clientHeight
+        }
+      } else {
+        delete _this.getHeight
+      }
+    }
     return _this
   }
 
@@ -116,61 +118,61 @@ var Centpn = (function(_Component) {
     {
       key: 'render',
       value: function render() {
-        return React.createElement(
-          'div',
-          _extends({ ref: this.ref }, this.processedProps())
-        )
-      }
-    },
-    {
-      key: 'processedProps',
-      value: function processedProps() {
-        var top = this.props.top
-        var height = this.state.height
+        var ref = this.ref,
+          props = this.props,
+          height = this.state.height
 
-        return assign({}, this.props, {
-          top: undefined,
-          style: assign(
-            {},
-            this.props.style,
-            typeof height !== 'number'
-              ? { visibility: 'hidden' }
-              : {
-                  position: 'relative',
-                  top: 'calc(50% + ' + (top - height / 2) + 'px)'
-                }
-          )
-        })
+        var re_props = {}
+
+        Object.keys(props)
+          .filter(function(key) {
+            return key !== 'top'
+          })
+          .forEach(function(key) {
+            return (re_props[key] = props[key])
+          })
+
+        re_props.style = Object.assign(
+          {},
+          re_props.style,
+          typeof height !== 'number'
+            ? { visibility: 'hidden' }
+            : {
+                position: 'relative',
+                top:
+                  'calc(50% - ' +
+                  height / 2 +
+                  'px' +
+                  topProcess(props.top) +
+                  ')'
+              }
+        )
+
+        return React.createElement('div', _extends({ ref: ref }, re_props))
       }
     },
     {
       key: 'componentDidMount',
       value: function componentDidMount() {
-        this.rafSetState(this.getHeight())
-      }
-    },
-    {
-      key: 'componentWillReceiveProps',
-      value: function componentWillReceiveProps(nextProps) {
-        this.throwInvalidProps(nextProps)
+        this.setStateRaf({ height: this.getHeight() })
       }
     },
     {
       key: 'componentDidUpdate',
       value: function componentDidUpdate() {
         var height = this.getHeight()
-        if (height !== this.state.height) {
-          this.rafSetState(height)
-        }
+        return (
+          height !== this.state.height && this.setStateRaf({ height: height })
+        )
       }
     },
     {
-      key: 'rafSetState',
-      value: function rafSetState(height) {
+      key: 'setStateRaf',
+      value: function setStateRaf(nextstate) {
         var _this2 = this
 
         this.requestId = raf(function() {
-          return _this2.setState({ height: height })
+          return _this2.setState(nextstate)
         })
       }
     },
@@ -181,17 +183,25 @@ var Centpn = (function(_Component) {
       }
     },
     {
-      key: 'throwInvalidProps',
-      value: function throwInvalidProps(props) {
-        if (typeof props.top !== 'number') {
-          throw new TypeError('Centpn props.top must be "number"')
+      key: 'componentWillReceiveProps',
+      value: function componentWillReceiveProps(nextProps) {
+        this.throwProps(nextProps)
+      }
+    },
+    {
+      key: 'throwProps',
+      value: function throwProps(props) {
+        if (
+          'top' in props &&
+          typeof props.top !== 'number' &&
+          typeof props.top !== 'string'
+        ) {
+          throw new TypeError('Centpn props.top must be "number" | "string"')
         }
       }
     }
   ])
   return Centpn
 })(Component)
-
-Centpn.defaultProps = { top: 0 }
 
 export default Centpn
