@@ -4,23 +4,19 @@ import React, { Component } from 'react'
 const raf = callback => window.requestAnimationFrame(callback)
 const caf = requestId => window.cancelAnimationFrame(requestId)
 
-type RefFn = (React$ElementRef<React$ElementType> | null) => void
-type GetHeightFn = () => number
 type Props = { top?: number | string }
 type State = { height?: number }
-type PropsCustom = {
-  style: { visibility: 'hidden' } | { position: 'relative', top: number },
-  children: React$Node
-}
 
 const topProcess = (top) =>
   !top
-    ? ''
-    : ` + (${typeof top === 'number' ? String(top) + 'px' : top})`
+  ? ''
+  : typeof top === 'number'
+  ? ` + (${top}px)`
+  : ` + (${top})`
 
 export default class Centpn extends Component<Props, State> {
-  ref: RefFn
-  getHeight: GetHeightFn
+  ref: (React$ElementRef<React$ElementType> | null) => void
+  getHeight: () => number
   requestId: void | number
 
   constructor(props: Props): void {

@@ -92,7 +92,7 @@ var caf = function caf(requestId) {
 var topProcess = function topProcess(top) {
   return !top
     ? ''
-    : ' + (' + (typeof top === 'number' ? String(top) + 'px' : top) + ')'
+    : typeof top === 'number' ? ' + (' + top + 'px)' : ' + (' + top + ')'
 }
 
 var Centpn = (function(_Component) {
