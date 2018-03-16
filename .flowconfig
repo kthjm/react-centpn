@@ -1,5 +1,9 @@
 [ignore]
 .*/node_modules/.*
+cjs.js
+es.js
+min.js
+test.js
 [include]
 
 [libs]

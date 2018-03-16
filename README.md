@@ -26,8 +26,11 @@ export default () =>
 ```
 
 ## Props
-#### `top: number = 0`
-set `top` as `calc(50% + ${props.top - contentHeight / 2})`
+#### `top: number | string`
+
+Used as `calc(50% - ${contentHeight / 2} + (props.top))`.
+
+`props.top` as number will be processed `${props.top}px`.
 
 ## License
 MIT (http://opensource.org/licenses/MIT)

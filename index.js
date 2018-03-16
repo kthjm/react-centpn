@@ -1,97 +1,85 @@
 // @flow
 import React, { Component } from 'react'
 
-const { assign } = Object
 const raf = callback => window.requestAnimationFrame(callback)
 const caf = requestId => window.cancelAnimationFrame(requestId)
 
 type RefFn = (React$ElementRef<React$ElementType> | null) => void
 type GetHeightFn = () => number
-
-function ref(div: any) {
-  if (div) {
-    ;(div: React$ElementRef<React$ElementType>)
-    this.getHeight = () => div.clientHeight
-  } else {
-    ;(div: null)
-    delete this.getHeight
-  }
-}
-
-type Props = {
-  top: number,
-  style: { [key: string]: any },
-  children: React$Node
-}
-
+type Props = { top?: number | string }
 type State = { height?: number }
-
 type PropsCustom = {
   style: { visibility: 'hidden' } | { position: 'relative', top: number },
   children: React$Node
 }
 
+const topProcess = (top) =>
+  !top
+    ? ''
+    : ` + (${typeof top === 'number' ? String(top) + 'px' : top})`
+
 export default class Centpn extends Component<Props, State> {
-  static defaultProps: { top: 0 }
   ref: RefFn
   getHeight: GetHeightFn
   requestId: void | number
 
   constructor(props: Props): void {
     super(props)
-    this.throwInvalidProps(props)
+    this.throwProps(props)
     this.state = { height: undefined }
     this.requestId = undefined
-    this.ref = ref.bind(this)
+    this.ref = (div: any) => {
+      if (div) {
+        ;(div: React$ElementRef<React$ElementType>)
+        this.getHeight = () => div.clientHeight
+      } else {
+        ;(div: null)
+        delete this.getHeight
+      }
+    }
   }
 
   render() {
-    return <div ref={this.ref} {...this.processedProps()} />
-  }
+    const { ref, props, state: { height } } = this
+    const re_props = {}
 
-  processedProps(): PropsCustom {
-    const { top } = this.props
-    const { height } = this.state
-    return assign({}, this.props, {
-      top: undefined,
-      style: assign(
-        {},
-        this.props.style,
-        typeof height !== 'number'
-          ? { visibility: 'hidden' }
-          : { position: 'relative', top: `calc(50% + ${top - height / 2}px)` }
-      )
-    })
+    Object.keys(props)
+    .filter(key => key !== 'top')
+    .forEach(key => re_props[key] = props[key])
+
+    re_props.style = Object.assign({}, re_props.style,
+      typeof height !== 'number'
+      ? { visibility: 'hidden' }
+      : { position: 'relative', top: `calc(50% - ${height / 2}px${topProcess(props.top)})` }
+    )
+
+    return <div {...{ ref }} {...re_props} />
   }
 
   componentDidMount() {
-    this.rafSetState(this.getHeight())
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    this.throwInvalidProps(nextProps)
+    this.setStateRaf({ height: this.getHeight() })
   }
 
   componentDidUpdate() {
     const height = this.getHeight()
-    if (height !== this.state.height) {
-      this.rafSetState(height)
-    }
+    return height !== this.state.height && this.setStateRaf({ height })
   }
 
-  rafSetState(height: number): void {
-    this.requestId = raf(() => this.setState({ height }))
+  setStateRaf(nextstate: State): void {
+    this.requestId = raf(() => this.setState(nextstate))
   }
 
   componentWillUnmount() {
     caf(this.requestId)
   }
 
-  throwInvalidProps(props: Props): void {
-    if (typeof props.top !== 'number') {
-      throw new TypeError(`Centpn props.top must be "number"`)
+  componentWillReceiveProps(nextProps: Props) {
+    this.throwProps(nextProps)
+  }
+
+  throwProps(props: any): void {
+    if ('top' in props && typeof props.top !== 'number' && typeof props.top !== 'string') {
+      throw new TypeError(`Centpn props.top must be "number" | "string"`)
     }
   }
 }
-
-Centpn.defaultProps = { top: 0 }
