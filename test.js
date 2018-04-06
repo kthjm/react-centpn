@@ -17,18 +17,18 @@ it('throw: typeof props.top !== "number"', () => {
   )
 })
 
-it('ref set getHeight', () => {
+it('ref set getFn', () => {
   const modules = rewire('./index.js')
 
   const Centpn = modules.default
   const wrapper = enzyme.mount(<Centpn />)
 
   const instance = wrapper.instance()
-  assert.ok(typeof instance.getHeight === 'function')
+  assert.ok(typeof instance.getClientHeight === 'function')
   assert.ok(typeof instance.getOffsetTop === 'function')
 
   wrapper.unmount()
-  assert.ok(!instance.getHeight)
+  assert.ok(!instance.getClientHeight)
   assert.ok(!instance.getOffsetTop)
 })
 

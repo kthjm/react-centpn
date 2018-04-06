@@ -94,32 +94,37 @@ var throwProps = function throwProps(props) {
 
 var Centpn = (function(_Component) {
   inherits(Centpn, _Component)
+  createClass(Centpn, [
+    {
+      key: 'componentWillReceiveProps',
+      value: function componentWillReceiveProps(nextProps) {
+        throwProps(nextProps)
+      }
+    }
+  ])
 
   function Centpn(props) {
     classCallCheck(this, Centpn)
+
+    throwProps(props)
 
     var _this = possibleConstructorReturn(
       this,
       (Centpn.__proto__ || Object.getPrototypeOf(Centpn)).call(this, props)
     )
 
-    throwProps(props)
-
-    _this.state = {
-      height: undefined,
-      valid: undefined
-    }
+    _this.state = { height: undefined, valid: undefined }
 
     _this.ref = function(div) {
       if (div) {
-        _this.getHeight = function() {
+        _this.getClientHeight = function() {
           return div.clientHeight
         }
         _this.getOffsetTop = function() {
           return div.offsetTop
         }
       } else {
-        delete _this.getHeight
+        delete _this.getClientHeight
         delete _this.getOffsetTop
       }
     }
@@ -128,17 +133,11 @@ var Centpn = (function(_Component) {
 
   createClass(Centpn, [
     {
-      key: 'componentWillReceiveProps',
-      value: function componentWillReceiveProps(nextProps) {
-        throwProps(nextProps)
-      }
-    },
-    {
       key: 'componentDidMount',
       value: function componentDidMount() {
         var _this2 = this
 
-        this.setState({ height: this.getHeight() }, function() {
+        this.setState({ height: this.getClientHeight() }, function() {
           return _this2.setState({ valid: _this2.getOffsetTop() >= 0 })
         })
       }
@@ -148,7 +147,7 @@ var Centpn = (function(_Component) {
       value: function componentDidUpdate() {
         var _this3 = this
 
-        var height = this.getHeight()
+        var height = this.getClientHeight()
         return (
           height !== this.state.height &&
           this.setState({ height: height }, function() {
@@ -164,7 +163,6 @@ var Centpn = (function(_Component) {
       key: 'render',
       value: function render() {
         var attributes = {}
-
         var ref = this.ref,
           props = this.props,
           _state = this.state,
@@ -186,6 +184,7 @@ var Centpn = (function(_Component) {
             : typeof valid !== 'boolean'
               ? {
                   position: 'relative',
+                  visibility: 'hidden',
                   top: topAsCalc(height, props.top)
                 }
               : {
