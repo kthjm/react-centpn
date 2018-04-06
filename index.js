@@ -43,19 +43,17 @@ export default class Centpn extends Component<Props, State> {
   }
 
   componentDidMount() {
-    this.setState({ height: this.getHeight() })
+    this.setState({ height: this.getHeight() }, () =>
+      this.setState({ valid: this.getOffsetTop() >= 0 })
+    )
   }
 
-  componentDidUpdate(prevprops: Props, prevstate: State) {
-    const { state } = this
+  componentDidUpdate() {
     const height = this.getHeight()
-    const valid = this.getOffsetTop() >= 0
-    return (
-      typeof state.valid !== 'boolean' ||
-      (prevstate.height !== state.height && valid !== state.valid)
-        ? this.setState({ valid, height })
-        : height !== state.height && this.setState({ height })
-    )
+    return height !== this.state.height && this.setState({ height }, () => {
+      const valid = this.getOffsetTop() >= 0
+      return valid !== this.state.valid && this.setState({ valid })
+    })
   }
 
   render() {
@@ -63,10 +61,11 @@ export default class Centpn extends Component<Props, State> {
 
     const { ref, props, state: { height, valid } } = this
 
-    Object
-    .keys(props)
-    .filter(key => key !== 'top')
-    .forEach(key => attributes[key] = props[key])
+    Object.keys(props).forEach(key =>
+      key === 'top'
+      ? false
+      : attributes[key] = props[key]
+    )
 
     attributes.style = Object.assign({}, attributes.style,
       typeof height !== 'number' ? {

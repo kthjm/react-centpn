@@ -136,20 +136,28 @@ var Centpn = (function(_Component) {
     {
       key: 'componentDidMount',
       value: function componentDidMount() {
-        this.setState({ height: this.getHeight() })
+        var _this2 = this
+
+        this.setState({ height: this.getHeight() }, function() {
+          return _this2.setState({ valid: _this2.getOffsetTop() >= 0 })
+        })
       }
     },
     {
       key: 'componentDidUpdate',
-      value: function componentDidUpdate(prevprops, prevstate) {
-        var state = this.state
+      value: function componentDidUpdate() {
+        var _this3 = this
 
         var height = this.getHeight()
-        var valid = this.getOffsetTop() >= 0
-        return typeof state.valid !== 'boolean' ||
-          (prevstate.height !== state.height && valid !== state.valid)
-          ? this.setState({ valid: valid, height: height })
-          : height !== state.height && this.setState({ height: height })
+        return (
+          height !== this.state.height &&
+          this.setState({ height: height }, function() {
+            var valid = _this3.getOffsetTop() >= 0
+            return (
+              valid !== _this3.state.valid && _this3.setState({ valid: valid })
+            )
+          })
+        )
       }
     },
     {
@@ -163,13 +171,9 @@ var Centpn = (function(_Component) {
           height = _state.height,
           valid = _state.valid
 
-        Object.keys(props)
-          .filter(function(key) {
-            return key !== 'top'
-          })
-          .forEach(function(key) {
-            return (attributes[key] = props[key])
-          })
+        Object.keys(props).forEach(function(key) {
+          return key === 'top' ? false : (attributes[key] = props[key])
+        })
 
         attributes.style = Object.assign(
           {},
