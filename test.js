@@ -20,35 +20,28 @@ it('throw: typeof props.top !== "number"', () => {
 it('ref set getHeight', () => {
   const modules = rewire('./index.js')
 
-  const raf = sinon.spy()
-  const caf = sinon.spy()
+  const Centpn = modules.default
+  const wrapper = enzyme.mount(<Centpn />)
 
-  return modules.__with__({ raf, caf })(() => {
-    const Centpn = modules.default
-    const wrapper = enzyme.mount(<Centpn />)
-    const instance = wrapper.instance()
+  const instance = wrapper.instance()
+  assert.ok(typeof instance.getHeight === 'function')
+  assert.ok(typeof instance.getOffsetTop === 'function')
 
-    assert.ok(typeof instance.getHeight === 'function')
-    assert.equal(raf.callCount, 1)
-    assert.equal(caf.callCount, 0)
-
-    wrapper.unmount()
-    assert.equal(caf.callCount, 1)
-    assert.ok(!instance.getHeight)
-  })
+  wrapper.unmount()
+  assert.ok(!instance.getHeight)
+  assert.ok(!instance.getOffsetTop)
 })
 
 it('mount => setProps()', () => {
-  window.requestAnimationFrame = callback => callback()
-
   const Centpn = rewire('./index.js').default
   const display = 'inline-block'
+  const position = 'relative'
   const wrapper = enzyme.mount(<Centpn style={{ display }} />)
 
   // componentDidMount + componentDidUpdate
   assert.deepEqual(wrapper.childAt(0).getElement().props.style, {
     display,
-    position: 'relative',
+    position,
     top: `calc(50% - 0px)`
   })
 
@@ -59,7 +52,7 @@ it('mount => setProps()', () => {
       .getElement().props.style,
     {
       display,
-      position: 'relative',
+      position,
       top: `calc(50% - 0px + (-10px))`
     }
   )
@@ -71,18 +64,18 @@ it('mount => setProps()', () => {
       .getElement().props.style,
     {
       display,
-      position: 'relative',
+      position,
       top: `calc(50% - 0px + (-10%))`
     }
   )
 })
 
-describe('topProcess()', () => {
-  const topProcess = rewire('./index.js').__get__('topProcess')
+describe('plusTop()', () => {
+  const plusTop = rewire('./index.js').__get__('plusTop')
 
-  it('undefined', () => assert.equal(topProcess(undefined), ''))
+  it('undefined', () => assert.equal(plusTop(undefined), ''))
 
-  it('string', () => assert.equal(topProcess('-10%'), ' + (-10%)'))
+  it('string', () => assert.equal(plusTop('-10%'), ' + (-10%)'))
 
-  it('number', () => assert.equal(topProcess(-10), ' + (-10px)'))
+  it('number', () => assert.equal(plusTop(-10), ' + (-10px)'))
 })
