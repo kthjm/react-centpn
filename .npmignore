@@ -3,7 +3,7 @@
 .gitignore
 .prettierignore
 .travis.yml
-codedov.yml
+codecov.yml
 index.js
 rollup.config.all.js
 test.js

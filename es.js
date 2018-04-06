@@ -75,17 +75,14 @@ var possibleConstructorReturn = function(self, call) {
 }
 
 //
-var raf = function raf(callback) {
-  return window.requestAnimationFrame(callback)
-}
-var caf = function caf(requestId) {
-  return window.cancelAnimationFrame(requestId)
-}
-
-var topProcess = function topProcess(top) {
-  return !top
-    ? ''
-    : typeof top === 'number' ? ' + (' + top + 'px)' : ' + (' + top + ')'
+var throwProps = function throwProps(props) {
+  if (
+    'top' in props &&
+    typeof props.top !== 'number' &&
+    typeof props.top !== 'string'
+  ) {
+    throw new TypeError('Centpn props.top must be "number" | "string"')
+  }
 }
 
 var Centpn = (function(_Component) {
@@ -99,16 +96,24 @@ var Centpn = (function(_Component) {
       (Centpn.__proto__ || Object.getPrototypeOf(Centpn)).call(this, props)
     )
 
-    _this.throwProps(props)
-    _this.state = { height: undefined }
-    _this.requestId = undefined
+    throwProps(props)
+
+    _this.state = {
+      height: undefined,
+      valid: undefined
+    }
+
     _this.ref = function(div) {
       if (div) {
         _this.getHeight = function() {
           return div.clientHeight
         }
+        _this.getOffsetTop = function() {
+          return div.offsetTop
+        }
       } else {
         delete _this.getHeight
+        delete _this.getOffsetTop
       }
     }
     return _this
@@ -116,92 +121,87 @@ var Centpn = (function(_Component) {
 
   createClass(Centpn, [
     {
-      key: 'render',
-      value: function render() {
-        var ref = this.ref,
-          props = this.props,
-          height = this.state.height
-
-        var re_props = {}
-
-        Object.keys(props)
-          .filter(function(key) {
-            return key !== 'top'
-          })
-          .forEach(function(key) {
-            return (re_props[key] = props[key])
-          })
-
-        re_props.style = Object.assign(
-          {},
-          re_props.style,
-          typeof height !== 'number'
-            ? { visibility: 'hidden' }
-            : {
-                position: 'relative',
-                top:
-                  'calc(50% - ' +
-                  height / 2 +
-                  'px' +
-                  topProcess(props.top) +
-                  ')'
-              }
-        )
-
-        return React.createElement('div', _extends({ ref: ref }, re_props))
+      key: 'componentWillReceiveProps',
+      value: function componentWillReceiveProps(nextProps) {
+        throwProps(nextProps)
       }
     },
     {
       key: 'componentDidMount',
       value: function componentDidMount() {
-        this.setStateRaf({ height: this.getHeight() })
+        var _this2 = this
+
+        this.setState({ height: this.getHeight() }, function() {
+          return _this2.setState({ valid: _this2.getOffsetTop() >= 0 })
+        })
       }
     },
     {
       key: 'componentDidUpdate',
       value: function componentDidUpdate() {
+        var _this3 = this
+
         var height = this.getHeight()
         return (
-          height !== this.state.height && this.setStateRaf({ height: height })
+          height !== this.state.height &&
+          this.setState({ height: height }, function() {
+            var valid = _this3.getOffsetTop() >= 0
+            return (
+              valid !== _this3.state.valid && _this3.setState({ valid: valid })
+            )
+          })
         )
       }
     },
     {
-      key: 'setStateRaf',
-      value: function setStateRaf(nextstate) {
-        var _this2 = this
+      key: 'render',
+      value: function render() {
+        var attributes = {}
 
-        this.requestId = raf(function() {
-          return _this2.setState(nextstate)
+        var ref = this.ref,
+          props = this.props,
+          _state = this.state,
+          height = _state.height,
+          valid = _state.valid
+
+        Object.keys(props).forEach(function(key) {
+          return key === 'top' ? false : (attributes[key] = props[key])
         })
-      }
-    },
-    {
-      key: 'componentWillUnmount',
-      value: function componentWillUnmount() {
-        caf(this.requestId)
-      }
-    },
-    {
-      key: 'componentWillReceiveProps',
-      value: function componentWillReceiveProps(nextProps) {
-        this.throwProps(nextProps)
-      }
-    },
-    {
-      key: 'throwProps',
-      value: function throwProps(props) {
-        if (
-          'top' in props &&
-          typeof props.top !== 'number' &&
-          typeof props.top !== 'string'
-        ) {
-          throw new TypeError('Centpn props.top must be "number" | "string"')
-        }
+
+        attributes.style = Object.assign(
+          {},
+          attributes.style,
+          typeof height !== 'number'
+            ? {
+                position: 'relative',
+                visibility: 'hidden'
+              }
+            : typeof valid !== 'boolean'
+              ? {
+                  position: 'relative',
+                  top: topAsCalc(height, props.top)
+                }
+              : {
+                  position: 'relative',
+                  top: valid && topAsCalc(height, props.top)
+                }
+        )
+
+        return React.createElement('div', _extends({ ref: ref }, attributes))
       }
     }
   ])
   return Centpn
 })(Component)
+
+var topAsCalc = function topAsCalc(height, top) {
+  return 'calc(50%' + (' - ' + height / 2 + 'px') + plusTop(top) + ')'
+}
+
+var plusTop = function plusTop(top) {
+  return !top
+    ? ''
+    : typeof top === 'number' ? ' + (' + top + 'px)' : ' + (' + top + ')'
+}
 
 export default Centpn

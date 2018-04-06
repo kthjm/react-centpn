@@ -1,81 +1,98 @@
 // @flow
 import React, { Component } from 'react'
 
-const raf = callback => window.requestAnimationFrame(callback)
-const caf = requestId => window.cancelAnimationFrame(requestId)
-
 type Props = { top?: number | string }
-type State = { height?: number }
+type State = { height?: number, valid?: boolean }
 
-const topProcess = (top) =>
-  !top
-  ? ''
-  : typeof top === 'number'
-  ? ` + (${top}px)`
-  : ` + (${top})`
+const throwProps = (props: any): void => {
+  if ('top' in props && typeof props.top !== 'number' && typeof props.top !== 'string') {
+    throw new TypeError(`Centpn props.top must be "number" | "string"`)
+  }
+}
 
 export default class Centpn extends Component<Props, State> {
   ref: (React$ElementRef<React$ElementType> | null) => void
   getHeight: () => number
-  requestId: void | number
+  getOffsetTop: () => number
 
   constructor(props: Props): void {
     super(props)
-    this.throwProps(props)
-    this.state = { height: undefined }
-    this.requestId = undefined
+
+    throwProps(props)
+
+    this.state = {
+      height: undefined,
+      valid: undefined
+    }
+
     this.ref = (div: any) => {
       if (div) {
         ;(div: React$ElementRef<React$ElementType>)
         this.getHeight = () => div.clientHeight
+        this.getOffsetTop = () => div.offsetTop
       } else {
         ;(div: null)
         delete this.getHeight
+        delete this.getOffsetTop
       }
     }
   }
 
-  render() {
-    const { ref, props, state: { height } } = this
-    const re_props = {}
-
-    Object.keys(props)
-    .filter(key => key !== 'top')
-    .forEach(key => re_props[key] = props[key])
-
-    re_props.style = Object.assign({}, re_props.style,
-      typeof height !== 'number'
-      ? { visibility: 'hidden' }
-      : { position: 'relative', top: `calc(50% - ${height / 2}px${topProcess(props.top)})` }
-    )
-
-    return <div {...{ ref }} {...re_props} />
+  componentWillReceiveProps(nextProps: Props) {
+    throwProps(nextProps)
   }
 
   componentDidMount() {
-    this.setStateRaf({ height: this.getHeight() })
+    this.setState({ height: this.getHeight() }, () =>
+      this.setState({ valid: this.getOffsetTop() >= 0 })
+    )
   }
 
   componentDidUpdate() {
     const height = this.getHeight()
-    return height !== this.state.height && this.setStateRaf({ height })
+    return height !== this.state.height && this.setState({ height }, () => {
+      const valid = this.getOffsetTop() >= 0
+      return valid !== this.state.valid && this.setState({ valid })
+    })
   }
 
-  setStateRaf(nextstate: State): void {
-    this.requestId = raf(() => this.setState(nextstate))
-  }
+  render() {
+    const attributes = {}
 
-  componentWillUnmount() {
-    caf(this.requestId)
-  }
+    const { ref, props, state: { height, valid } } = this
 
-  componentWillReceiveProps(nextProps: Props) {
-    this.throwProps(nextProps)
-  }
+    Object.keys(props).forEach(key =>
+      key === 'top'
+      ? false
+      : attributes[key] = props[key]
+    )
 
-  throwProps(props: any): void {
-    if ('top' in props && typeof props.top !== 'number' && typeof props.top !== 'string') {
-      throw new TypeError(`Centpn props.top must be "number" | "string"`)
-    }
+    attributes.style = Object.assign({}, attributes.style,
+      typeof height !== 'number' ? {
+        position: 'relative',
+        visibility: 'hidden'
+      } : typeof valid !== 'boolean' ? {
+        position: 'relative',
+        top: topAsCalc(height, props.top)
+      } : {
+        position: 'relative',
+        top: valid && topAsCalc(height, props.top)
+      }
+    )
+
+    return <div {...{ ref }} {...attributes} />
   }
 }
+
+const topAsCalc = (height, top): string =>
+  'calc(50%'
+  + ` - ${height / 2}px`
+  + plusTop(top)
+  + ')'
+
+const plusTop = (top): string =>
+  !top
+    ? ''
+    : typeof top === 'number'
+      ? ` + (${top}px)`
+      : ` + (${top})`
