@@ -144,19 +144,30 @@ var Centpn = (function(_Component) {
     },
     {
       key: 'componentDidUpdate',
-      value: function componentDidUpdate() {
+      value: function componentDidUpdate(_ref) {
         var _this3 = this
 
+        var pre_top = _ref.top
+
         var height = this.getClientHeight()
-        return (
-          height !== this.state.height &&
-          this.setState({ height: height }, function() {
-            var valid = _this3.getOffsetTop() >= 0
-            return (
-              valid !== _this3.state.valid && _this3.setState({ valid: valid })
-            )
-          })
-        )
+        return height !== this.state.height
+          ? this.setState({ height: height }, function() {
+              return _this3.setValidIfDiff()
+            })
+          : pre_top !== this.props.top
+            ? this.state.valid
+              ? this.setValidIfDiff()
+              : this.setState({ valid: true }, function() {
+                  return _this3.setValidIfDiff()
+                })
+            : false
+      }
+    },
+    {
+      key: 'setValidIfDiff',
+      value: function setValidIfDiff() {
+        var valid = this.getOffsetTop() >= 0
+        return valid !== this.state.valid && this.setState({ valid: valid })
       }
     },
     {

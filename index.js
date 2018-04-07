@@ -46,12 +46,22 @@ export default class Centpn extends Component<Props, State> {
     )
   }
 
-  componentDidUpdate() {
+  componentDidUpdate({ top: pre_top }: Props) {
     const height = this.getClientHeight()
-    return height !== this.state.height && this.setState({ height }, () => {
-      const valid = this.getOffsetTop() >= 0
-      return valid !== this.state.valid && this.setState({ valid })
-    })
+    return (
+      height !== this.state.height
+        ? this.setState({ height }, () => this.setValidIfDiff()) :
+      pre_top !== this.props.top
+        ? this.state.valid
+          ? this.setValidIfDiff()
+          : this.setState({ valid: true }, () => this.setValidIfDiff()) :
+      false
+    )
+  }
+
+  setValidIfDiff() {
+    const valid = this.getOffsetTop() >= 0
+    return valid !== this.state.valid && this.setState({ valid })
   }
 
   render() {
