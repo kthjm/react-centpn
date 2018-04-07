@@ -50,7 +50,7 @@ export default class Centpn extends Component<Props, State> {
     const height = this.getClientHeight()
     return (
       height !== this.state.height
-        ? this.setState({ height }, () => this.setValidIfDiff()) :
+        ? this.setState({ valid: true, height }, () => this.setValidIfDiff()) :
       pre_top !== this.props.top
         ? this.state.valid
           ? this.setValidIfDiff()

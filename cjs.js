@@ -151,7 +151,7 @@ var Centpn = (function(_Component) {
 
         var height = this.getClientHeight()
         return height !== this.state.height
-          ? this.setState({ height: height }, function() {
+          ? this.setState({ valid: true, height: height }, function() {
               return _this3.setValidIfDiff()
             })
           : pre_top !== this.props.top
