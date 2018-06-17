@@ -70,14 +70,11 @@ function _inherits(subClass, superClass) {
 }
 
 //
-var throwProps = function throwProps(props) {
-  if (
-    'top' in props &&
-    typeof props.top !== 'number' &&
-    typeof props.top !== 'string'
-  ) {
-    throw new TypeError('Centpn props.top must be "number" | "string"')
-  }
+var throws = function throws(message) {
+  throw new Error(message)
+}
+var _asserts = function _asserts(condition, message) {
+  return !condition && throws(message)
 }
 
 var Centpn = (function(_Component) {
@@ -85,9 +82,14 @@ var Centpn = (function(_Component) {
 
   _createClass(Centpn, [
     {
-      key: 'componentWillReceiveProps',
-      value: function componentWillReceiveProps(nextProps) {
-        throwProps(nextProps)
+      key: 'asserts',
+      value: function asserts() {
+        _asserts(
+          !('top' in this.props) ||
+            typeof this.props.top === 'number' ||
+            typeof this.props.top === 'string',
+          'Centpn props.top must be "number" | "string"'
+        )
       }
     }
   ])
@@ -95,14 +97,17 @@ var Centpn = (function(_Component) {
   function Centpn(props) {
     _classCallCheck(this, Centpn)
 
-    throwProps(props)
-
     var _this = _possibleConstructorReturn(
       this,
       (Centpn.__proto__ || Object.getPrototypeOf(Centpn)).call(this, props)
     )
 
-    _this.state = { height: undefined, valid: undefined }
+    _this.asserts()
+
+    _this.state = {
+      height: undefined,
+      valid: undefined
+    }
 
     _this.ref = function(div) {
       if (div) {
@@ -127,73 +132,73 @@ var Centpn = (function(_Component) {
         var _this2 = this
 
         this.setState({ height: this.getClientHeight() }, function() {
-          return _this2.setState({ valid: _this2.getOffsetTop() >= 0 })
+          return _this2.setState({ valid: _this2.isValid() })
         })
       }
     },
     {
       key: 'componentDidUpdate',
-      value: function componentDidUpdate(_ref) {
+      value: function componentDidUpdate(preprops) {
         var _this3 = this
 
-        var pre_top = _ref.top
+        this.asserts()
 
         var height = this.getClientHeight()
-        return height !== this.state.height
+
+        this.state.height !== height
           ? this.setState({ valid: true, height: height }, function() {
               return _this3.setValidIfDiff()
             })
-          : pre_top !== this.props.top
-            ? this.state.valid
+          : this.props.top === preprops.top
+            ? false
+            : this.state.valid
               ? this.setValidIfDiff()
               : this.setState({ valid: true }, function() {
                   return _this3.setValidIfDiff()
                 })
-            : false
+      }
+    },
+    {
+      key: 'isValid',
+      value: function isValid() {
+        var offsetTop = this.getOffsetTop()
+        return typeof offsetTop === 'number' && offsetTop >= 0
       }
     },
     {
       key: 'setValidIfDiff',
       value: function setValidIfDiff() {
-        var valid = this.getOffsetTop() >= 0
-        return valid !== this.state.valid && this.setState({ valid: valid })
+        var valid = this.isValid()
+        this.state.valid !== valid && this.setState({ valid: valid })
       }
     },
     {
       key: 'render',
       value: function render() {
-        var attributes = {}
         var ref = this.ref,
           props = this.props,
           _state = this.state,
           height = _state.height,
           valid = _state.valid
 
+        var attrs = {}
+
         Object.keys(props).forEach(function(key) {
-          return key === 'top' ? false : (attributes[key] = props[key])
+          return key === 'top' ? false : (attrs[key] = props[key])
         })
 
-        attributes.style = Object.assign(
+        attrs.style = Object.assign(
           {},
-          attributes.style,
+          attrs.style,
+          { position: 'relative' },
           typeof height !== 'number'
-            ? {
-                position: 'relative',
-                visibility: 'hidden'
-              }
+            ? { visibility: 'hidden' }
             : typeof valid !== 'boolean'
-              ? {
-                  position: 'relative',
-                  visibility: 'hidden',
-                  top: topAsCalc(height, props.top)
-                }
-              : {
-                  position: 'relative',
-                  top: valid && topAsCalc(height, props.top)
-                }
+              ? { visibility: 'hidden', top: topAsCalc(height, props.top) }
+              : { top: valid && topAsCalc(height, props.top) }
         )
 
-        return React.createElement('div', _extends({ ref: ref }, attributes))
+        return React.createElement('div', _extends({ ref: ref }, attrs))
       }
     }
   ])
@@ -201,16 +206,16 @@ var Centpn = (function(_Component) {
   return Centpn
 })(Component)
 
-var topAsCalc = function topAsCalc(height, top) {
-  return 'calc(50%' + (' - ' + height / 2 + 'px') + plusTop(top) + ')'
+var topAsCalc = function topAsCalc(height, propsTop) {
+  return 'calc(50%' + (' - ' + height / 2 + 'px') + topByProps(propsTop) + ')'
 }
 
-var plusTop = function plusTop(top) {
-  return !top
+var topByProps = function topByProps(propsTop) {
+  return !propsTop
     ? ''
-    : typeof top === 'number'
-      ? ' + (' + top + 'px)'
-      : ' + (' + top + ')'
+    : typeof propsTop === 'number'
+      ? ' + (' + propsTop + 'px)'
+      : ' + (' + propsTop + ')'
 }
 
 export default Centpn

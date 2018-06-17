@@ -5,27 +5,32 @@ type Props = { top?: number | string }
 type State = { height?: number, valid?: boolean }
 type GetRawValueFn = () => number
 
-const throwProps = (props: any): void => {
-  if ('top' in props && typeof props.top !== 'number' && typeof props.top !== 'string') {
-    throw new TypeError(`Centpn props.top must be "number" | "string"`)
-  }
-}
+const throws = (message) => { throw new Error(message) }
+const asserts = (condition, message) => !condition && throws(message)
 
 export default class Centpn extends Component<Props, State> {
   ref: (React$ElementRef<React$ElementType> | null) => void
   getClientHeight: GetRawValueFn
   getOffsetTop: GetRawValueFn
 
-  componentWillReceiveProps(nextProps: Props) {
-    throwProps(nextProps)
+  asserts() {
+    asserts(
+      !('top' in this.props) ||
+      typeof this.props.top === 'number' ||
+      typeof this.props.top === 'string',
+      `Centpn props.top must be "number" | "string"`
+    )
   }
 
   constructor(props: Props): void {
-    throwProps(props)
-
     super(props)
 
-    this.state = { height: undefined, valid: undefined }
+    this.asserts()
+
+    this.state = {
+      height: undefined,
+      valid: undefined
+    }
 
     this.ref = (div: any) => {
       if (div) {
@@ -42,65 +47,61 @@ export default class Centpn extends Component<Props, State> {
 
   componentDidMount() {
     this.setState({ height: this.getClientHeight() }, () =>
-      this.setState({ valid: this.getOffsetTop() >= 0 })
+      this.setState({ valid: this.isValid() })
     )
   }
 
-  componentDidUpdate({ top: pre_top }: Props) {
+  componentDidUpdate(preprops: Props) {
+    this.asserts()
+
     const height = this.getClientHeight()
-    return (
-      height !== this.state.height
-        ? this.setState({ valid: true, height }, () => this.setValidIfDiff()) :
-      pre_top !== this.props.top
-        ? this.state.valid
-          ? this.setValidIfDiff()
-          : this.setState({ valid: true }, () => this.setValidIfDiff()) :
-      false
-    )
+
+    this.state.height !== height ?
+      this.setState({ valid: true, height }, () => this.setValidIfDiff()) :
+    this.props.top === preprops.top ?
+      false :
+    this.state.valid ?
+      this.setValidIfDiff() :
+      this.setState({ valid: true }, () => this.setValidIfDiff())
+  }
+
+  isValid() {
+    const offsetTop = this.getOffsetTop()
+    return typeof offsetTop === 'number' && offsetTop >= 0
   }
 
   setValidIfDiff() {
-    const valid = this.getOffsetTop() >= 0
-    return valid !== this.state.valid && this.setState({ valid })
+    const valid = this.isValid()
+    this.state.valid !== valid && this.setState({ valid })
   }
 
   render() {
-    const attributes = {}
     const { ref, props, state: { height, valid } } = this
+    const attrs = {}
 
-    Object.keys(props).forEach(key =>
-      key === 'top'
-        ? false
-        : attributes[key] = props[key]
+    Object.keys(props).forEach(key => key === 'top' ? false : attrs[key] = props[key])
+
+    attrs.style = Object.assign({}, attrs.style, { position: 'relative' },
+      typeof height !== 'number' ?
+      { visibility: 'hidden' } :
+      typeof valid !== 'boolean' ?
+      { visibility: 'hidden', top: topAsCalc(height, props.top) } :
+      { top: valid && topAsCalc(height, props.top) }
     )
 
-    attributes.style = Object.assign({}, attributes.style,
-      typeof height !== 'number' ? {
-        position: 'relative',
-        visibility: 'hidden'
-      } : typeof valid !== 'boolean' ? {
-        position: 'relative',
-        visibility: 'hidden',
-        top: topAsCalc(height, props.top)
-      } : {
-        position: 'relative',
-        top: valid && topAsCalc(height, props.top)
-      }
-    )
-
-    return <div {...{ ref }} {...attributes} />
+    return <div {...{ ref }} {...attrs} />
   }
 }
 
-const topAsCalc = (height, top): string =>
+const topAsCalc = (height, propsTop): string =>
   'calc(50%'
   + ` - ${height / 2}px`
-  + plusTop(top)
+  + topByProps(propsTop)
   + ')'
 
-const plusTop = (top): string =>
-  !top
-    ? ''
-    : typeof top === 'number'
-      ? ` + (${top}px)`
-      : ` + (${top})`
+const topByProps = (propsTop): string =>
+  !propsTop ?
+  '' :
+  typeof propsTop === 'number' ?
+  ` + (${propsTop}px)` :
+  ` + (${propsTop})`
