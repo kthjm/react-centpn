@@ -7,13 +7,21 @@ function _interopDefault(ex) {
 var React = require('react')
 var React__default = _interopDefault(React)
 
-var classCallCheck = function(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError('Cannot call a class as a function')
+var _extends =
+  Object.assign ||
+  function(target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i]
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key]
+        }
+      }
+    }
+    return target
   }
-}
 
-var createClass = (function() {
+var _createClass = (function() {
   function defineProperties(target, props) {
     for (var i = 0; i < props.length; i++) {
       var descriptor = props[i]
@@ -23,7 +31,6 @@ var createClass = (function() {
       Object.defineProperty(target, descriptor.key, descriptor)
     }
   }
-
   return function(Constructor, protoProps, staticProps) {
     if (protoProps) defineProperties(Constructor.prototype, protoProps)
     if (staticProps) defineProperties(Constructor, staticProps)
@@ -31,30 +38,30 @@ var createClass = (function() {
   }
 })()
 
-var _extends =
-  Object.assign ||
-  function(target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i]
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key]
-        }
-      }
-    }
-
-    return target
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError('Cannot call a class as a function')
   }
+}
 
-var inherits = function(subClass, superClass) {
+function _possibleConstructorReturn(self, call) {
+  if (!self) {
+    throw new ReferenceError(
+      "this hasn't been initialised - super() hasn't been called"
+    )
+  }
+  return call && (typeof call === 'object' || typeof call === 'function')
+    ? call
+    : self
+}
+
+function _inherits(subClass, superClass) {
   if (typeof superClass !== 'function' && superClass !== null) {
     throw new TypeError(
       'Super expression must either be null or a function, not ' +
         typeof superClass
     )
   }
-
   subClass.prototype = Object.create(superClass && superClass.prototype, {
     constructor: {
       value: subClass,
@@ -69,18 +76,6 @@ var inherits = function(subClass, superClass) {
       : (subClass.__proto__ = superClass)
 }
 
-var possibleConstructorReturn = function(self, call) {
-  if (!self) {
-    throw new ReferenceError(
-      "this hasn't been initialised - super() hasn't been called"
-    )
-  }
-
-  return call && (typeof call === 'object' || typeof call === 'function')
-    ? call
-    : self
-}
-
 //
 var throwProps = function throwProps(props) {
   if (
@@ -93,8 +88,9 @@ var throwProps = function throwProps(props) {
 }
 
 var Centpn = (function(_Component) {
-  inherits(Centpn, _Component)
-  createClass(Centpn, [
+  _inherits(Centpn, _Component)
+
+  _createClass(Centpn, [
     {
       key: 'componentWillReceiveProps',
       value: function componentWillReceiveProps(nextProps) {
@@ -104,11 +100,11 @@ var Centpn = (function(_Component) {
   ])
 
   function Centpn(props) {
-    classCallCheck(this, Centpn)
+    _classCallCheck(this, Centpn)
 
     throwProps(props)
 
-    var _this = possibleConstructorReturn(
+    var _this = _possibleConstructorReturn(
       this,
       (Centpn.__proto__ || Object.getPrototypeOf(Centpn)).call(this, props)
     )
@@ -131,7 +127,7 @@ var Centpn = (function(_Component) {
     return _this
   }
 
-  createClass(Centpn, [
+  _createClass(Centpn, [
     {
       key: 'componentDidMount',
       value: function componentDidMount() {
@@ -211,6 +207,7 @@ var Centpn = (function(_Component) {
       }
     }
   ])
+
   return Centpn
 })(React.Component)
 
@@ -221,7 +218,9 @@ var topAsCalc = function topAsCalc(height, top) {
 var plusTop = function plusTop(top) {
   return !top
     ? ''
-    : typeof top === 'number' ? ' + (' + top + 'px)' : ' + (' + top + ')'
+    : typeof top === 'number'
+      ? ' + (' + top + 'px)'
+      : ' + (' + top + ')'
 }
 
 module.exports = Centpn
