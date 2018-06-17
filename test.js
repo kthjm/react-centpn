@@ -39,11 +39,16 @@ it('mount => setProps()', () => {
   const wrapper = enzyme.mount(<Centpn style={{ display }} />)
 
   // componentDidMount + componentDidUpdate
-  assert.deepEqual(wrapper.childAt(0).getElement().props.style, {
-    display,
-    position,
-    top: `calc(50% - 0px)`
-  })
+  assert.deepEqual(
+    wrapper
+      .childAt(0)
+      .getElement().props.style,
+    {
+      display,
+      position,
+      top: `calc(50% - 0px)`
+    }
+  )
 
   assert.deepEqual(
     wrapper
@@ -70,12 +75,12 @@ it('mount => setProps()', () => {
   )
 })
 
-describe('plusTop()', () => {
-  const plusTop = rewire('./index.js').__get__('plusTop')
+describe('topByProps()', () => {
+  const topByProps = rewire('./index.js').__get__('topByProps')
 
-  it('undefined', () => assert.equal(plusTop(undefined), ''))
+  it('undefined', () => assert.equal(topByProps(undefined), ''))
 
-  it('string', () => assert.equal(plusTop('-10%'), ' + (-10%)'))
+  it('string', () => assert.equal(topByProps('-10%'), ' + (-10%)'))
 
-  it('number', () => assert.equal(plusTop(-10), ' + (-10px)'))
+  it('number', () => assert.equal(topByProps(-10), ' + (-10px)'))
 })

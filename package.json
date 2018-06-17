@@ -1,21 +1,21 @@
 {
   "name": "react-centpn",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "author": "kthjm <toxictoxer@gmail.com>",
   "repository": "kthjm/react-centpn",
   "license": "MIT",
   "description": "Simple react component to center children vertically.",
-  "keywords": ["react"],
+  "keywords": [
+    "react"
+  ],
   "main": "./cjs.js",
   "jsnext:main": "./es.js",
   "module": "./es.js",
-  "prettier": {
-    "tabWidth": 2,
-    "semi": false,
-    "singleQuote": true
-  },
   "nyc": {
-    "require": ["babel-register", "jsdom-global/register"],
+    "require": [
+      "babel-register",
+      "jsdom-global/register"
+    ],
     "sourceMap": false,
     "instrument": false
   },
@@ -23,23 +23,23 @@
     "pretest": "flow",
     "test": "cross-env NODE_ENV=TEST nyc mocha ./test.js",
     "prebuild": "yarn test",
-    "build": "cross-env NODE_ENV=BUILD node rollup.config.all.js",
-    "postbuild": "run-s format",
-    "format": "prettier --write **/*.js package.json",
+    "build": "cross-env NODE_ENV=BUILD rollup -c",
     "coverage": "nyc report --reporter=lcov && codecov"
+  },
+  "peerDependencies": {
+    "react": "^16.4.1"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-plugin-istanbul": "^4.1.5",
     "babel-plugin-rewire": "^1.1.0",
     "babel-preset-env": "^1.6.1",
-    "babel-preset-es2015-rollup": "^3.0.0",
     "babel-preset-flow": "^6.23.0",
     "babel-preset-power-assert": "^1.0.0",
     "babel-preset-react": "^6.24.1",
     "codecov": "^3.0.0",
     "cross-env": "^5.1.3",
-    "enzyme": "^3.1.0",
+    "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
     "flow-bin": "^0.61.0",
     "jsdom": "^11.3.0",
@@ -48,20 +48,17 @@
     "npm-run-all": "^4.1.1",
     "nyc": "^11.4.1",
     "power-assert": "^1.4.4",
-    "prettier": "^1.9.2",
-    "react": "^16.0.0",
-    "react-dom": "^16.0.0",
-    "react-test-renderer": "^16.0.0",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
+    "react-test-renderer": "^16.4.1",
     "rewire": "^3.0.2",
     "rollup": "^0.53.0",
+    "rollup-plugin-auto-external": "^1.2.0",
     "rollup-plugin-babel": "^3.0.3",
-    "rollup-plugin-commonjs": "^8.2.6",
     "rollup-plugin-flow": "^1.1.1",
+    "rollup-plugin-prettier": "^0.4.0",
     "rollup-plugin-uglify": "^2.0.1",
     "sinon": "^4.1.3",
     "uglify-es": "^3.3.2"
-  },
-  "peerDependencies": {
-    "react": "^16.0.0"
   }
 }

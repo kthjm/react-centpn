@@ -1,7 +1,6 @@
 .babelrc
 .flowconfig
 .gitignore
-.prettierignore
 .travis.yml
 codecov.yml
 index.js
